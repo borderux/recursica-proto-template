@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
+import recursica from "@recursica/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
@@ -24,6 +25,7 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      recursica,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -31,6 +33,10 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      // @recursica/eslint-plugin's `configs.recommended` is eslintrc-format
+      // (`plugins: ["recursica"]`), which flat config rejects — so the plugin
+      // is registered above and its recommended rule set directly here instead.
+      "recursica/no-over-styled": "error",
       // Suppress unused eslint-disable warnings
       "no-restricted-syntax": "off",
       "eslint-disable": "off",
