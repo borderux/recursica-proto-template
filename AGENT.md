@@ -148,7 +148,7 @@ adapter exposes, not on a specific adapter's ref-forwarding — see Forms in
 - Don't edit `src/App.tsx` or `src/routes/Home.tsx` just to add a
   prototype; the folder convention handles routing and listing for you.
 - Before considering work done, run `npm run check-types` and
-  `npm run lint` (or `npm run precommit` for both plus formatting).
+  `npm run lint`.
 - Don't commit. Leave changes staged/unstaged for the human to review and
   commit themselves.
 - Use forms when managing user input that should be submitted to the back-end
