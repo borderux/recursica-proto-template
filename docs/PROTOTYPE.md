@@ -105,5 +105,5 @@ without a `modes` prop) — that's what makes the picker panel open via
 description. Clicking one sets `?mode=<id>`, closes the panel, and
 re-renders the prototype in that mode.
 
-See `src/routes/prototypes/mock-api-demo/` for a complete, working
-example (four modes: default, empty, error, and malformed-response).
+See `src/routes/prototypes/demo/` for a complete, working example (three
+modes: default, a failed load, and a failed submit).

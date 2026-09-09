@@ -46,7 +46,7 @@
 
 Why `Controller` and not `register()`: `register()` returns a native `{ name, onChange, onBlur, ref }` bundle meant to be spread onto an uncontrolled `<input>`, which depends on the component forwarding `ref` straight through to the DOM node the way it currently does. `Controller`'s `render` prop only needs a component that accepts `value`/`onChange` (plus `label`/`error` for messages) — the controlled-input contract every Recursica adapter exposes, regardless of which UI library backs it. That's what keeps a form working if the adapter is ever swapped (e.g. Mantine → MUI), per the "everything must stay UI-library-agnostic" ask that drove this choice.
 
-See `src/routes/prototypes/form-demo/` for a full working example (text inputs with `required`/pattern validation, a checkbox, and a submit handler).
+See `src/routes/prototypes/demo/` for a full working example (text/number inputs, dropdowns, a text area, and a submit handler wired to a mock API).
 
 ## Code quality tooling
 
@@ -148,7 +148,7 @@ prototype may use (see Prototype conventions below).
   picker itself, sliding out from the right when the URL asks for it
   (`?mode` with no value, or `?modes`) rather than naming a mode directly.
   See `docs/PROTOTYPE.md` for the designer-facing process and
-  `src/routes/prototypes/mock-api-demo/` for a working example.
+  `src/routes/prototypes/demo/` for a working example.
 - **Everything is routable**, including modals — a modal should be
   routable within its page (e.g. via a search param) so it can be navigated
   back to, shared, or reloaded without being lost.

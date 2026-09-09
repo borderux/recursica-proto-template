@@ -5,6 +5,7 @@ import {
   malformedGreetings,
   type Greeting,
 } from "../../data/greetings";
+import { mockDelay } from "../delay";
 
 /**
  * What this mock API is for — shown by the API registry
@@ -20,7 +21,8 @@ export const description =
  * `src/api/index.ts`).
  */
 export const handlers = [
-  http.get("/api/greetings", () => {
+  http.get("/api/greetings", async () => {
+    await mockDelay();
     return HttpResponse.json<Greeting[]>(greetings);
   }),
 ];
@@ -31,7 +33,8 @@ export const handlers = [
  * and back out with `worker.resetHandlers()`.
  */
 export const errorHandlers = [
-  http.get("/api/greetings", () => {
+  http.get("/api/greetings", async () => {
+    await mockDelay();
     return HttpResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
@@ -44,7 +47,8 @@ export const errorHandlers = [
  * the UI's empty state, as distinct from an error or malformed response.
  */
 export const emptyHandlers = [
-  http.get("/api/greetings", () => {
+  http.get("/api/greetings", async () => {
+    await mockDelay();
     return HttpResponse.json<Greeting[]>(emptyGreetings);
   }),
 ];
@@ -55,7 +59,8 @@ export const emptyHandlers = [
  * the error-handling exercised by {@link errorHandlers}.
  */
 export const malformedHandlers = [
-  http.get("/api/greetings", () => {
+  http.get("/api/greetings", async () => {
+    await mockDelay();
     return HttpResponse.json(malformedGreetings);
   }),
 ];

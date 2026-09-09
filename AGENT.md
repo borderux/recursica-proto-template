@@ -30,7 +30,6 @@ ask the designer about the UX, mock data/APIs, and modes. Mechanically:
    see Modes below.
 
 Nothing else needs to change — Home and routing auto-discover the folder.
-See `src/routes/prototypes/hello-world/` for a minimal example.
 
 ## Mock data & mock APIs
 
@@ -62,6 +61,13 @@ that something should be reusable rather than reinvented per prototype.
     malformed-response handling, not just the success path.
   - It's auto-discovered and aggregated by `src/api/index.ts` — no manual
     wiring to register a new endpoint.
+  - **Simulate real network latency** with `mockDelay()`
+    (`src/api/delay.ts`) — `await` it at the top of every resolver. It
+    defaults to `DEFAULT_DELAY_MS` (1000ms); to make the delay configurable
+    per mode, write the handler as a factory that takes `delayMs` and
+    passes it through, so a mode with a different handler set can also
+    pass a different latency — see `src/api/inventory/`'s `createHandlers`
+    for a working example.
 - **Switch scenarios at runtime** with `worker.use(...someHandlers)`
   (import `worker` from `src/api/worker.ts`), and revert with
   `worker.resetHandlers()`. Drive the choice from a URL search param (see
@@ -71,8 +77,8 @@ that something should be reusable rather than reinvented per prototype.
   prototypes call `fetch("/api/...")` as if a real backend existed.
 - See `src/data/greetings/` + `src/api/greetings/` (data + the endpoint
   that serves it, including error/bad-data scenarios) and
-  `src/routes/prototypes/mock-api-demo/` (a prototype consuming both,
-  switched via modes — see below) for a working example.
+  `src/routes/prototypes/demo/` (a prototype consuming its own dataset +
+  API, switched via modes — see below) for a working example.
 
 ## Modes
 
@@ -95,9 +101,10 @@ for the full process. If so:
   handler set).
 - The URL convention: `?mode=1` selects a mode directly; `?mode` (no
   value) or `?modes` opens the mode-picker panel instead.
-- See `src/routes/prototypes/mock-api-demo/` for a working example, and
-  `src/routes/prototypes/form-demo/` for a prototype with no modes that
-  still wraps in `<Prototype>`.
+- **Modes are a hidden feature.** Unless the designer explicitly asks for
+  it, a prototype's own UI must never surface the word "mode", a button/link
+  that opens the panel, or the current mode's name — the panel is reached
+  only by adding the search param to the URL by hand.
 
 ## Routing & state
 
@@ -123,7 +130,7 @@ through its `Controller` component (not `register()`) so the form only
 depends on the `value`/`onChange`/`label`/`error` contract every Recursica
 adapter exposes, not on a specific adapter's ref-forwarding — see Forms in
 `ARCHITECTURE.md` for why and how, and
-`src/routes/prototypes/form-demo/` for a working example.
+`src/routes/prototypes/demo/` for a working example.
 
 ## Rules
 
@@ -146,3 +153,4 @@ adapter exposes, not on a specific adapter's ref-forwarding — see Forms in
   commit themselves.
 - Use forms when managing user input that should be submitted to the back-end
 - Consider negative/failure cases also when creating prototypes
+- **Modes are a hidden feature.** Never expose a mode-switching element or mention modes in prototypes

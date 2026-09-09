@@ -18,7 +18,7 @@ See `docs/PROTOTYPE.md` for the process — what to ask the designer about
 data, APIs, and modes before building. Mechanically:
 
 1. Create a folder: `src/routes/prototypes/<slug>/index.tsx`. `<slug>`
-   becomes the URL — `hello-world` → `/prototypes/hello-world`.
+   becomes the URL — `demo` → `/prototypes/demo`.
 2. Default-export your page component.
 3. Optionally add a title/description shown on the Home card:
    ```tsx
@@ -26,7 +26,7 @@ data, APIs, and modes before building. Mechanically:
    ```
 
 That's it — no other files to touch. Home and routing pick it up
-automatically. See `src/routes/prototypes/hello-world/` for an example.
+automatically. See `src/routes/prototypes/demo/` for an example.
 
 See `ARCHITECTURE.md` for the full tooling/infra breakdown, and
 `AGENT.md` for rules AI agents follow when working in this repo.
