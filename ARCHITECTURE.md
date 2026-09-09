@@ -85,9 +85,15 @@ src/
   main.tsx        # Entry point: enableMocking() → MantineProvider → RecursicaThemeProvider → BrowserRouter → App
   App.tsx          # react-router <Routes>, one <Route> per page/prototype
   routes/          # One file per route (e.g. Home.tsx)
+    modes.ts       # `Mode` type + `useModes`/`usePrototypeModes` — the
+                   #   `?mode=<id>` convention
+    ModesPanel.tsx # Slide-out (right) picker UI for a prototype's modes
+    Prototype.tsx  # <Prototype> wrapper every prototype renders through —
+                   #   always mounts ModesPanel, even with no modes
     prototypes/    # index.ts auto-discovers every <slug>/index.tsx below it
       <slug>/      #   and registers it at /prototypes/<slug> — no manual
         index.tsx  #   route or Home wiring needed to add one
+        modes.ts   #   optional: this prototype's `modes: Mode[]`
   data/            # Mock datasets shared across prototypes
     index.ts       # Registry: auto-discovers every <name>/index.ts below
     <name>/        #   a typed, JSDoc'd data array; import it directly
@@ -100,6 +106,8 @@ src/
   assets/          # Static assets imported by components
   recursica_fonts.css  # Generated font @imports — see src/recursica_fonts.css above
 public/            # Static assets served as-is (favicon, icons, mockServiceWorker.js)
+docs/
+  PROTOTYPE.md     # Process for creating a new prototype — see AGENT.md/README.md
 ```
 
 Home (`/`) lists every discovered prototype, each self-contained in its own
@@ -111,9 +119,10 @@ prototype may use (see Prototype conventions below).
 
 - **Isolation.** No code sharing between prototypes — no shared code or
   folders outside a prototype's own folder, other than the app chrome under
-  `src/routes/`, the registry (`src/routes/prototypes/index.ts`), and the
-  shared mock data/API folders below. A prototype must not import from or
-  modify another prototype's folder.
+  `src/routes/`, the registry (`src/routes/prototypes/index.ts`), the
+  modes convention (`src/routes/modes.ts`, `src/routes/ModesPanel.tsx`,
+  `src/routes/Prototype.tsx`), and the shared mock data/API folders below.
+  A prototype must not import from or modify another prototype's folder.
 - **Mock data & mock APIs are the two deliberate exceptions.** Real
   prototypes need to call something, so `src/data/<name>/` (typed,
   JSDoc'd datasets) and `src/api/<name>/` ([MSW](https://mswjs.io/)
@@ -124,13 +133,22 @@ prototype may use (see Prototype conventions below).
 - **Bad-data and API-error scenarios are first-class, not an afterthought.**
   Every dataset ships bad-data sets alongside the good one (empty, and
   malformed/schema-violating records), and every mock API ships
-  error/malformed handlers alongside its default one. Swap a scenario in
-  at runtime with `worker.use(...)` / back out with
-  `worker.resetHandlers()` (`src/api/worker.ts`), driven by a URL search
-  param so a given broken state is reproducible via a link. See
-  `src/data/greetings/` + `src/api/greetings/` +
-  `src/routes/prototypes/mock-api-demo/` (a `?scenario=` switcher) for a
-  working example.
+  error/malformed handlers alongside its default one. See
+  `src/data/greetings/` + `src/api/greetings/` for a working example.
+- **Every prototype renders through `<Prototype>`** (`src/routes/Prototype.tsx`),
+  which always mounts the mode-picker panel — so `?mode`/`?modes` opens it
+  even for a prototype with no modes defined, not just ones that opted in.
+- **Modes select which mock data/API behavior a prototype uses**, by
+  number, via `?mode=<id>` — the generalized, reusable version of swapping
+  scenarios in with `worker.use(...)` / back out with
+  `worker.resetHandlers()` (`src/api/worker.ts`). A prototype that wants
+  modes adds a colocated `modes.ts` (`Mode[]` from `src/routes/modes.ts`),
+  passes it as `<Prototype modes={modes}>`, and reads the active one with
+  `usePrototypeModes()`. `ModesPanel` (`src/routes/ModesPanel.tsx`) is the
+  picker itself, sliding out from the right when the URL asks for it
+  (`?mode` with no value, or `?modes`) rather than naming a mode directly.
+  See `docs/PROTOTYPE.md` for the designer-facing process and
+  `src/routes/prototypes/mock-api-demo/` for a working example.
 - **Everything is routable**, including modals — a modal should be
   routable within its page (e.g. via a search param) so it can be navigated
   back to, shared, or reloaded without being lost.

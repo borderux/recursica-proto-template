@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
 import {
   Button,
   Container,
@@ -10,44 +9,46 @@ import {
   Toast,
 } from "@recursica/adapter-mantine-v8";
 import type { PrototypeMeta } from "..";
+import { Prototype } from "../../Prototype";
+import { usePrototypeModes } from "../../modes";
 import { greetings } from "../../../data/greetings";
 import {
   handlers,
+  emptyHandlers,
   errorHandlers,
   malformedHandlers,
 } from "../../../api/greetings";
 import { worker } from "../../../api/worker";
+import { modes } from "./modes";
 
 export const meta: PrototypeMeta = {
   title: "Mock API Demo",
   description:
-    "Shows the shared mock-data and mock-API registries, including error and bad-data scenarios.",
+    "Shows the shared mock-data and mock-API registries, plus the modes convention for switching between them.",
 };
 
-// Each scenario swaps in a different set of handlers for /api/greetings at
+// Maps each mode's id to the handler set it swaps into /api/greetings at
 // runtime (worker.use / worker.resetHandlers) — see src/api/greetings/.
-const SCENARIOS = {
-  default: handlers,
-  error: errorHandlers,
-  malformed: malformedHandlers,
-} as const;
-type Scenario = keyof typeof SCENARIOS;
+const HANDLERS_BY_MODE: Record<number, typeof handlers> = {
+  1: handlers,
+  2: emptyHandlers,
+  3: errorHandlers,
+  4: malformedHandlers,
+};
 
 type FetchState =
   | { status: "loading" }
   | { status: "ok"; body: unknown }
   | { status: "error"; message: string };
 
-function MockApiDemo() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const requested = searchParams.get("scenario");
-  const scenario: Scenario =
-    requested && requested in SCENARIOS ? (requested as Scenario) : "default";
+function MockApiDemoContent() {
+  const { activeMode, openPanel } = usePrototypeModes();
   const [state, setState] = useState<FetchState>({ status: "loading" });
 
   useEffect(() => {
+    if (!activeMode) return;
     setState({ status: "loading" });
-    worker.use(...SCENARIOS[scenario]);
+    worker.use(...HANDLERS_BY_MODE[activeMode.id]);
     fetch("/api/greetings")
       .then(async (res) => {
         const body = await res.json();
@@ -62,7 +63,9 @@ function MockApiDemo() {
         }),
       )
       .finally(() => worker.resetHandlers());
-  }, [scenario]);
+  }, [activeMode]);
+
+  if (!activeMode) return null;
 
   return (
     <Container size="lg" py="xl">
@@ -79,20 +82,12 @@ function MockApiDemo() {
         </Stack>
 
         <Text>
-          Fetched from /api/greetings via the MSW mock worker — pick a scenario
-          to see how this page handles it (the choice lives in the URL, so it
+          Fetched from /api/greetings via the MSW mock worker — the mode picked
+          below decides what it returns (the choice lives in the URL, so it
           survives a reload/share):
         </Text>
-        <Group gap="xs">
-          {(Object.keys(SCENARIOS) as Scenario[]).map((s) => (
-            <Button
-              key={s}
-              variant={s === scenario ? "solid" : "outline"}
-              onClick={() => setSearchParams({ scenario: s })}
-            >
-              {s}
-            </Button>
-          ))}
+        <Group gap="xs" align="center">
+          <Button onClick={openPanel}>Mode: {activeMode.name}</Button>
         </Group>
 
         {state.status === "loading" && <Text>Loading…</Text>}
@@ -106,6 +101,14 @@ function MockApiDemo() {
         )}
       </Stack>
     </Container>
+  );
+}
+
+function MockApiDemo() {
+  return (
+    <Prototype modes={modes}>
+      <MockApiDemoContent />
+    </Prototype>
   );
 }
 

@@ -14,6 +14,9 @@ npm run dev
 
 ## Adding a prototype
 
+See `docs/PROTOTYPE.md` for the process — what to ask the designer about
+data, APIs, and modes before building. Mechanically:
+
 1. Create a folder: `src/routes/prototypes/<slug>/index.tsx`. `<slug>`
    becomes the URL — `hello-world` → `/prototypes/hello-world`.
 2. Default-export your page component.

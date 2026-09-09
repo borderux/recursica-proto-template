@@ -9,6 +9,7 @@ import {
   Toast,
 } from "@recursica/adapter-mantine-v8";
 import type { PrototypeMeta } from "..";
+import { Prototype } from "../../Prototype";
 
 export const meta: PrototypeMeta = {
   title: "Form Demo",
@@ -22,7 +23,7 @@ interface SignupForm {
   subscribe: boolean;
 }
 
-function FormDemo() {
+function FormDemoContent() {
   const {
     control,
     handleSubmit,
@@ -112,6 +113,14 @@ function FormDemo() {
         </form>
       </Stack>
     </Container>
+  );
+}
+
+function FormDemo() {
+  return (
+    <Prototype>
+      <FormDemoContent />
+    </Prototype>
   );
 }
 

@@ -13,6 +13,9 @@ any other prototype.
 
 ## How to add a prototype
 
+See `docs/PROTOTYPE.md` for the process to follow first — the questions to
+ask the designer about the UX, mock data/APIs, and modes. Mechanically:
+
 1. Create `src/routes/prototypes/<slug>/index.tsx` — `<slug>` becomes both
    the folder name and the URL (`/prototypes/<slug>`), so pick a kebab-case
    name that matches what you want the route to be.
@@ -23,6 +26,8 @@ any other prototype.
 4. Build the UI with components from `@recursica/adapter-mantine-v8`, not
    raw `@mantine/core` or `@mantine/dates` — that's what keeps prototypes on
    the design system.
+5. Wrap the page's content in `<Prototype>` (`src/routes/Prototype.tsx`) —
+   see Modes below.
 
 Nothing else needs to change — Home and routing auto-discover the folder.
 See `src/routes/prototypes/hello-world/` for a minimal example.
@@ -66,8 +71,33 @@ that something should be reusable rather than reinvented per prototype.
   prototypes call `fetch("/api/...")` as if a real backend existed.
 - See `src/data/greetings/` + `src/api/greetings/` (data + the endpoint
   that serves it, including error/bad-data scenarios) and
-  `src/routes/prototypes/mock-api-demo/` (a prototype consuming both, with
-  a `?scenario=` switcher) for a working example.
+  `src/routes/prototypes/mock-api-demo/` (a prototype consuming both,
+  switched via modes — see below) for a working example.
+
+## Modes
+
+Every prototype's `index.tsx` wraps its content in the shared
+`<Prototype>` component (`src/routes/Prototype.tsx`) — this is what makes
+the mode-picker panel available via `?mode`/`?modes` even for a prototype
+with no modes defined, so don't skip it just because a prototype doesn't
+need modes yet.
+
+Ask the designer whether they want to see a prototype in more than one
+state (different data, or different API behavior) — see `docs/PROTOTYPE.md`
+for the full process. If so:
+
+- The prototype's own folder gets a colocated `modes.ts` exporting
+  `modes: Mode[]` (`Mode` from `src/routes/modes.ts`), each with a numeric
+  `id`, a `name`, and a `description` (from the designer).
+- Pass it to `<Prototype modes={modes}>` and read the active mode from
+  inside with `usePrototypeModes()` (`src/routes/modes.ts`) — the
+  prototype itself decides what each mode `id` does (which dataset, which
+  handler set).
+- The URL convention: `?mode=1` selects a mode directly; `?mode` (no
+  value) or `?modes` opens the mode-picker panel instead.
+- See `src/routes/prototypes/mock-api-demo/` for a working example, and
+  `src/routes/prototypes/form-demo/` for a prototype with no modes that
+  still wraps in `<Prototype>`.
 
 ## Routing & state
 
@@ -104,8 +134,10 @@ adapter exposes, not on a specific adapter's ref-forwarding — see Forms in
   fully self-contained — never import from, or modify, another prototype's
   folder. There should be no shared code or folders outside of each
   prototype's own folder, other than the app chrome under `src/routes/`,
-  the registry (`src/routes/prototypes/index.ts`), and the mock data/API
-  folders (`src/data/`, `src/api/`) described above.
+  the registry (`src/routes/prototypes/index.ts`), the modes convention
+  (`src/routes/modes.ts`, `src/routes/ModesPanel.tsx`,
+  `src/routes/Prototype.tsx`), and the mock data/API folders (`src/data/`,
+  `src/api/`) described above.
 - Don't edit `src/App.tsx` or `src/routes/Home.tsx` just to add a
   prototype; the folder convention handles routing and listing for you.
 - Before considering work done, run `npm run check-types` and

@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import {
   greetings,
+  emptyGreetings,
   malformedGreetings,
   type Greeting,
 } from "../../data/greetings";
@@ -35,6 +36,16 @@ export const errorHandlers = [
       { error: "Internal Server Error" },
       { status: 500 },
     );
+  }),
+];
+
+/**
+ * Empty scenario: `GET /api/greetings` → 200 with no records. For checking
+ * the UI's empty state, as distinct from an error or malformed response.
+ */
+export const emptyHandlers = [
+  http.get("/api/greetings", () => {
+    return HttpResponse.json<Greeting[]>(emptyGreetings);
   }),
 ];
 
