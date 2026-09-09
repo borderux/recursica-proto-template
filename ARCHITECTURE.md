@@ -67,16 +67,12 @@ See `src/routes/prototypes/form-demo/` for a full working example (text inputs w
 | `check-types`             | `tsc -b`                                                         |
 | `precommit`               | `check-types` → `lint` → `format`                                |
 | `prepare`                 | Installs Husky's git hooks (runs automatically on `npm install`) |
-| `changeset` / `version`   | See Versioning below                                             |
-
-## Versioning
-
-- **[Changesets](https://github.com/changesets/changesets)** (`.changeset/`) tracks notable changes via `npm run changeset`, and `npm run version` (`changeset version`) applies pending changesets to `package.json`/`CHANGELOG.md`. `access` is `restricted` and there's no `release` script, since this is a private template, not something published to npm.
 
 ## CI (`.github/workflows/`)
 
-- **`pull-request.yml`** — on every PR to `main`: install, `check-types`, `lint`, `build`. Skips branches created by the Changesets release flow.
-- **`release.yml`** — on push to `main` touching `.changeset/`, `src/`, or package files: builds, then runs `changesets/action` to open/update a "Version Packages" PR. There's no publish step (no npm package to publish), so it only needs the default `GITHUB_TOKEN`.
+- **`pull-request.yml`** — on every PR to `main`, one job, one install/build (no duplicate work across separate check/preview workflows): `npm run build` (which itself chains format → lint:fix → lint → tsc -b → vite build, so this single step is the type-check, the lint check, and the build) with `--base=/<repo>/pr-preview/pr-<number>/`, then publishes that build as a live preview via `rossjrw/pr-preview-action` and posts the link into an "App preview" section of the PR description. A failing build/lint/type-check fails the PR and skips the preview. Tears the preview down automatically on PR close.
+- **`deploy.yml`** — on push to `main`: builds the app with `--base=/<repo>/` (repo name read from the GitHub context, not hardcoded, since this is a template) and publishes `dist/` to the `gh-pages` branch via `JamesIves/github-pages-deploy-action`. Copies `index.html` to `404.html` in the build output so GitHub Pages serves the app (not a real 404) for react-router deep links.
+  - **First-time setup** (not done by the workflow): GitHub Pages must be enabled once in repo Settings → Pages, source "Deploy from a branch" → `gh-pages`, after the first `deploy.yml` run creates that branch.
 
 ## Editor tooling
 
