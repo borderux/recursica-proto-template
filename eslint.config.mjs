@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "public/mockServiceWorker.js"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -41,6 +41,18 @@ export default tseslint.config(
       "no-restricted-syntax": "off",
       "eslint-disable": "off",
       "eslint-disable-next-line": "off",
+    },
+  },
+  {
+    // Every prototype's index.tsx exports a `meta` object alongside its
+    // default component (see src/routes/prototypes/index.ts) — that's an
+    // intentional, repeated pattern, not a one-off fast-refresh violation.
+    files: ["src/routes/prototypes/**/index.tsx"],
+    rules: {
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true, allowExportNames: ["meta"] },
+      ],
     },
   },
 );

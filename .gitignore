@@ -34,3 +34,7 @@ Thumbs.db
 
 # Typescript build cache
 *.tsbuildinfo
+
+# Generated at build time by vite.config.ts from recursica_tokens.json +
+# recursica_brand.json — see ARCHITECTURE.md
+src/recursica_fonts.css
