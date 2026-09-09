@@ -53,7 +53,6 @@ See `src/routes/prototypes/demo/` for a full working example (text/number inputs
 - **ESLint** (`eslint.config.mjs`, flat config) — `@eslint/js` + `typescript-eslint` recommended rules over `**/*.{ts,tsx}`, plus `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh` (Vite fast-refresh safety), and the Recursica plugin above.
 - **Prettier** (`prettier.config.mjs` — empty, i.e. all defaults; `.prettierignore` excludes `dist`, the generated `recursica_*` files, and the generated `public/mockServiceWorker.js`).
 - **Husky + lint-staged** — `.husky/pre-commit` runs `npx lint-staged --config scripts/lint-staged.config.cjs`, which on staged `*.{json,md,css,scss}` runs Prettier, and on staged `*.{js,jsx,ts,tsx}` runs Prettier + `eslint --fix` + a full `check-types` pass across the whole project (not just the staged files). The JSON/MD/CSS glob filters out symlinks before invoking Prettier — Prettier hard-errors on an explicitly-named symlink (e.g. `CLAUDE.md → AGENT.md`) even when the target is in `.prettierignore`, which would otherwise fail every commit that touches it.
-- `npm run precommit` runs the type-check/lint/format trio standalone, without needing a git commit in flight.
 
 ## Scripts (`package.json`)
 
@@ -65,7 +64,6 @@ See `src/routes/prototypes/demo/` for a full working example (text/number inputs
 | `lint` / `lint:fix`       | `eslint .` (with/without `--fix`)                                |
 | `format` / `format:check` | `prettier --write` / `--check` over the whole tree               |
 | `check-types`             | `tsc -b`                                                         |
-| `precommit`               | `check-types` → `lint` → `format`                                |
 | `prepare`                 | Installs Husky's git hooks (runs automatically on `npm install`) |
 
 ## CI (`.github/workflows/`)
